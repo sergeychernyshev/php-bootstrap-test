@@ -1,0 +1,18 @@
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# emulating routing setup applications can be using
+RewriteCond %{REQUEST_URI}	^/alias/
+RewriteRule \.html$		/alias/index.php [L]
+
+RewriteCond %{REQUEST_URI}	^/subfolder/
+RewriteRule \.html$		/subfolder/index.php [L]
+
+RewriteCond %{REQUEST_URI}	^/symlink/
+RewriteRule \.html$		/symlink/index.php [L]
+
+RewriteCond %{REQUEST_URI}	^/port/
+RewriteRule \.html$		/port/index.php [L]
+
+RewriteRule \.html$ index.php
+</IfModule>

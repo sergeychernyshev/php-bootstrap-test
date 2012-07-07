@@ -1,0 +1,3 @@
+[submodule "php-bootstrap"]
+	path = php-bootstrap
+	url = git://github.com/sergeychernyshev/php-bootstrap.git
