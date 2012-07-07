@@ -75,7 +75,9 @@ li {
 <body>
 <h1>Test harness</h1>
 
-Different application setup configurations:
+<p>This is a test harness for <a target="_blank" href="https://github.com/sergeychernyshev/php-bootstrap">PHP Bootstrap</a> project.</p>
+
+<p>You can see different application setup configurations below and see the variables that get set.</p>
 <ol>
 <li>
 	<?php menu_link('root',		'') ?>
