@@ -1,7 +1,7 @@
 <?php
 // Not using bootstrap for this to avoid it's own errors causing problems in testing
 // You can hard-code it to your hostname if you feel SERVER_NAME doesn't work on your system
-$test_server = $_SERVER['SERVER_NAME'];
+$test_server = array_key_exists('SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME'] : php_uname('n');
 
 require_once(dirname(__FILE__).'/php-bootstrap/bootstrap.php');
 
@@ -10,9 +10,9 @@ if (array_key_exists('json', $_GET)) {
 	exit;
 }
 
-define(QUERY_STRING, 0);
-define(PATH_INFO, 1);
-define(MOD_REWRITE, 2);
+define('QUERY_STRING', 0);
+define('PATH_INFO', 1);
+define('MOD_REWRITE', 2);
 
 function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 	global $_PROJECT, $test_server;
