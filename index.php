@@ -116,6 +116,7 @@ li {
 </li>
 <li><i>TODO</i> <?php // menu_link('ssl',		'ssl') ?> - support for SSL-hosted version</li>
 <li><i>TODO</i> <?php // menu_link('cli',		'cli') ?> - a script calling a command line tool using system call</li>
+<li><i>TODO</i> <?php // menu_link('vhostalias',	'vhostalias') ?> - installed on site using mod_vhost_alias (tons of bugs with DOCUMENT_ROOT)</li>
 </ol>
 
 <?php
