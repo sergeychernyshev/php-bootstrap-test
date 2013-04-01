@@ -3,7 +3,11 @@
 docroot = /home/sergey/www/sites/php-bootstrap.sergeychernyshev.com
 outside_of_docroot = /home/sergey/php-bootstrap-outside-docroot
 
-all:	clean alias subfolder port symlink
+all:	clean php-bootstrap alias subfolder port symlink
+
+php-bootstrap:
+	git submodule init
+	git submodule update
 
 alias:
 	mkdir ${outside_of_docroot}/
