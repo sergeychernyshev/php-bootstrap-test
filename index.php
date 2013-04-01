@@ -4,9 +4,10 @@
 $test_server = array_key_exists('SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME'] : php_uname('n');
 
 require_once(dirname(__FILE__).'/php-bootstrap/bootstrap.php');
+$project_env = PHPBootstrap\bootstrap(__FILE__);
 
 if (array_key_exists('json', $_GET) || PHP_SAPI === 'cli') {
-	echo json_encode($_PROJECT);
+	echo json_encode($project_env);
 	exit;
 }
 
@@ -15,10 +16,14 @@ define('PATH_INFO', 1);
 define('MOD_REWRITE', 2);
 
 function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
-	global $_PROJECT, $test_server;
+	global $project_env, $test_server;
 
 	if (is_null($uri)) {
-		$uri = "http://$test_server/$path";
+		$uri = "http://$test_server";
+
+		if ($path) {
+			$uri .= '/' . $path;
+		}
 
 		switch ($mode) {
 			case QUERY_STRING:
@@ -33,7 +38,8 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 		}
 	}
 
-	$current_path = ltrim($_PROJECT['ROOT_ABSOLUTE_URL_PATH'], '/');
+	$current_path = ltrim($project_env['ROOT_ABSOLUTE_URL_PATH'], '/');
+	#echo "Current path: [$current_path]";
 
 	$current_mode = QUERY_STRING;
 	if (array_key_exists('path_info', $_GET)) {
@@ -119,12 +125,34 @@ li {
 <li><i>TODO</i> <?php // menu_link('vhostalias',	'vhostalias') ?> - installed on site using mod_vhost_alias (tons of bugs with DOCUMENT_ROOT)</li>
 </ol>
 
-<?php
-define('VALID_ENTRY_POINT', TRUE);
-#define("SHOW_PHP_INFO", TRUE);
+<h1>PHP Bootstrapper</h1>
 
-require_once(dirname(__FILE__).'/php-bootstrap/debug.php');
+<h2>Generated values</h2>
+<table cellpadding="15" cellspacing="0" border="1" style="margin-bottom: 1em">
+<?php foreach ($project_env as $key => $val) { ?>
+<tr><td>$project_env['<?php echo $key ?>']</td><td><?php echo is_null($val) ? '<i>null</i>' : htmlentities($val) ?></td></tr>
+<?php } ?>
+</table>
+
+<h2>Variables used for calculation</h2>
+<table cellpadding="15" cellspacing="0" border="1">
+<?php foreach (array('SCRIPT_FILENAME', 'SCRIPT_NAME', 'HTTPS', 'HTTP_HOST', 'SERVER_PORT') as $var) { ?>
+<tr><td>$_SERVER['<?php echo $var ?>']</td><td><?php
+if (array_key_exists($var, $_SERVER)) {
+	echo is_null($_SERVER[$var]) ? '<i>null</i>' : htmlentities($_SERVER[$var]);
+} else {
+	echo 'n/a';
+}
+
+?></td></tr>
+<?php } ?>
+</table>
+
+<?php if (defined("SHOW_PHP_INFO")) { ?>
+	<h2>More server information</h2>
+	<?php
+	phpinfo();
+}
 ?>
-
 </body>
 </html>

@@ -1,7 +1,7 @@
 .PHONY: subfolder
 
 docroot = /home/sergey/www/sites/php-bootstrap.sergeychernyshev.com
-outside_of_docroot = /home/sergey/php-bootstrap
+outside_of_docroot = /home/sergey/php-bootstrap-outside-docroot
 
 all:	clean alias subfolder port symlink
 
