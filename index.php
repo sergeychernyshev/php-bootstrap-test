@@ -1,7 +1,9 @@
 <?php
-// Not using bootstrap for this to avoid it's own errors causing problems in testing
-// You can hard-code it to your hostname if you feel SERVER_NAME doesn't work on your system
-$test_server = array_key_exists('SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME'] : php_uname('n');
+// Set to match your setup to compare to detected values
+$host = 'bootstrap-test.lc';
+$document_root = '/Library/WebServer/Documents/bootstrap-test';
+$outside_of_document_root = '/Users/sergey/php-bootstrap-outside-docroot';
+$custom_port = 81;
 
 require_once(dirname(__FILE__).'/php-bootstrap/bootstrap.php');
 $project_env = PHPBootstrap\bootstrap(__FILE__);
@@ -11,15 +13,46 @@ if (array_key_exists('json', $_GET) || PHP_SAPI === 'cli') {
 	exit;
 }
 
+$expected_values = array(
+	'' => array(
+		'ROOT_FILESYSTEM_PATH' => $document_root,
+		'ROOT_ABSOLUTE_URL_PATH' => '',
+		'ROOT_FULL_URL' => 'http://' . $host
+	),
+	'subfolder' => array(
+		'ROOT_FILESYSTEM_PATH' => $document_root . '/subfolder',
+		'ROOT_ABSOLUTE_URL_PATH' => '/subfolder',
+		'ROOT_FULL_URL' => 'http://' . $host . '/subfolder'
+	),
+	'alias' => array(
+		'ROOT_FILESYSTEM_PATH' => $outside_of_document_root,
+		'ROOT_ABSOLUTE_URL_PATH' => '/alias',
+		'ROOT_FULL_URL' => 'http://' . $host . '/alias'
+	),
+	'symlink' => array(
+		'ROOT_FILESYSTEM_PATH' => $outside_of_document_root,
+		'ROOT_ABSOLUTE_URL_PATH' => '/symlink',
+		'ROOT_FULL_URL' => 'http://' . $host . '/symlink'
+	),
+	'port' => array(
+		'ROOT_FILESYSTEM_PATH' => $document_root,
+		'ROOT_ABSOLUTE_URL_PATH' => '/port',
+		'ROOT_FULL_URL' => 'http://' . $host . ':' . $custom_port . '/port'
+	)
+);
+
+// used to compare expected and detected values
+$current_path = ltrim($project_env['ROOT_ABSOLUTE_URL_PATH'], '/');
+
 define('QUERY_STRING', 0);
 define('PATH_INFO', 1);
 define('MOD_REWRITE', 2);
 
 function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
-	global $project_env, $test_server;
+	global $project_env, $host, $custom_port, $current_path;
 
 	if (is_null($uri)) {
-		$uri = "http://$test_server";
+		$uri = "http://$host";
 
 		if ($path) {
 			$uri .= '/' . $path;
@@ -37,9 +70,6 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 				break;
 		}
 	}
-
-	$current_path = ltrim($project_env['ROOT_ABSOLUTE_URL_PATH'], '/');
-	#echo "Current path: [$current_path]";
 
 	$current_mode = QUERY_STRING;
 	if (array_key_exists('path_info', $_GET)) {
@@ -60,79 +90,137 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 ?><html>
 <head>
 <style>
-.button {
-	padding: 0.2em 0.5em;
-	border: 1px solid gray;
-	background-color: #f2f2f2;
-	border-radius: 4px;
-	text-decoration: none;
-}
+	.variations td {
+		padding: 0.5em;
+	}
 
-b.button {
-	background-color: #d8d8d8;
-	border: 1px solid silver;
-}
+	th {
+		text-align: left;
+	}
 
-li {
-	padding: 0.5em;
-}
+	div.results {
+		float: left;
+		margin-right: 2em;
+	}
+	.button {
+		padding: 0.2em 0.5em;
+		border: 1px solid gray;
+		background-color: #f2f2f2;
+		border-radius: 4px;
+		text-decoration: none;
+	}
+
+	b.button {
+		background-color: #d8d8d8;
+		border: 1px solid silver;
+	}
+
+	li {
+		padding: 0.5em;
+	}
+	tr.fail td {
+		background-color: #ff9996;
+	}
+	tr.pass td {
+		background-color: #86f4a7;
+	}
 </style>
 </head>
 <body>
-<h1>Test harness</h1>
+
+<h1>PHP Bootstrap Test Harness</h1>
 
 <p>This is a test harness for <a target="_blank" href="https://github.com/sergeychernyshev/php-bootstrap">PHP Bootstrap</a> project.</p>
 
+<div class="results">
+
+<table cellpadding="15" cellspacing="0" border="1" style="margin-bottom: 1em">
+<?php foreach ($project_env as $key => $val) {
+	$expected_value = $expected_values[$current_path][$key];
+	$detected_value = $val;
+
+	$outcome = $detected_value == $expected_value;
+?>
+<tr class="<?php echo $outcome ? 'pass' : 'fail' ?>">
+	<td>
+		<p>$project_env['<?php echo $key ?>']</p>
+		<p>Expected: <?php echo htmlentities($expected_value) ?></p>
+		<p>Detected: <?php echo is_null($detected_value) ? '<i>null</i>' : htmlentities($detected_value) ?></p>
+	</td>
+</tr>
+<?php } ?>
+</table>
+</div>
+
+<div class="variations">
+<h2>Installation variations</h2>
 <p>You can see different application setup configurations below and see the variables that get set.</p>
-<ol>
-<li>
+
+<table>
+<tr>
+<td>
 	<?php menu_link('root',		'') ?>
 	<?php menu_link('path info',	'', PATH_INFO) ?>
 	<?php menu_link('mod_rewrite',	'', MOD_REWRITE) ?>
-	- root of the site
-</li>
-<li>
-	<?php menu_link('subfolder',	'subfolder') ?>
-	<?php menu_link('path info',	'subfolder', PATH_INFO) ?>
-	<?php menu_link('mod_rewrite',	'subfolder', MOD_REWRITE) ?>
-	- regular subfolder
-</li>
-<li>
-	<?php menu_link('alias',	'alias') ?>
-	<?php menu_link('path info',	'alias', PATH_INFO) ?>
-	<?php menu_link('mod_rewrite',	'alias', MOD_REWRITE) ?>
-	- folder set up using Alias to folder outside of DocumentRoot
-</li>
-<li>
-	<?php menu_link('symlink',	'symlink') ?>
-	<?php menu_link('path info',	'symlink', PATH_INFO) ?>
-	<?php menu_link('mod_rewrite',	'symlink', MOD_REWRITE) ?>
-	- folder set up using a file system symlink to folder outside of DocumentRoot
-</li>
-<li>
-	<?php menu_link('port',		'port', QUERY_STRING,
-		"http://$test_server:81/port/") ?>
-	<?php menu_link('path info',	'port', PATH_INFO,
-		"http://$test_server:81/port/index.php/a/b/c/d/?path_info=true") ?>
-	<?php menu_link('mod_rewrite',	'port', MOD_REWRITE,
-		"http://$test_server:81/port/a/b/c/d.html?mod_rewrite=true") ?>
-	- project on a non-default port
-	<ul>
-	</ul>
-</li>
-<li><i>TODO</i> <?php // menu_link('ssl',		'ssl') ?> - support for SSL-hosted version</li>
-<li><i>TODO</i> <?php // menu_link('cli',		'cli') ?> - a script calling a command line tool using system call</li>
-<li><i>TODO</i> <?php // menu_link('vhostalias',	'vhostalias') ?> - installed on site using mod_vhost_alias (tons of bugs with DOCUMENT_ROOT)</li>
-</ol>
+</td>
+<th>Root of the site</th>
+</tr>
 
-<h1>PHP Bootstrapper</h1>
+<tr>
+<td>
+<?php menu_link('subfolder',	'subfolder') ?>
+<?php menu_link('path info',	'subfolder', PATH_INFO) ?>
+<?php menu_link('mod_rewrite',	'subfolder', MOD_REWRITE) ?>
+</td>
+<th>Regular subfolder</th>
+</tr>
 
-<h2>Generated values</h2>
-<table cellpadding="15" cellspacing="0" border="1" style="margin-bottom: 1em">
-<?php foreach ($project_env as $key => $val) { ?>
-<tr><td>$project_env['<?php echo $key ?>']</td><td><?php echo is_null($val) ? '<i>null</i>' : htmlentities($val) ?></td></tr>
-<?php } ?>
+<tr>
+<td>
+<?php menu_link('alias',	'alias') ?>
+<?php menu_link('path info',	'alias', PATH_INFO) ?>
+<?php menu_link('mod_rewrite',	'alias', MOD_REWRITE) ?>
+</td>
+<th>Folder set up using Apache Alias to folder outside of DocumentRoot</th>
+</tr>
+
+<tr>
+<td>
+<?php menu_link('symlink',	'symlink') ?>
+<?php menu_link('path info',	'symlink', PATH_INFO) ?>
+<?php menu_link('mod_rewrite',	'symlink', MOD_REWRITE) ?>
+</td>
+<th>Folder set up using a file system symlink to folder outside of DocumentRoot</th>
+</tr>
+
+<tr>
+<td>
+<?php menu_link('port',		'port', QUERY_STRING,	"http://$host:$custom_port/port/") ?>
+<?php menu_link('path info',	'port', PATH_INFO,	"http://$host:$custom_port/port/index.php/a/b/c/d/?path_info=true") ?>
+<?php menu_link('mod_rewrite',	'port', MOD_REWRITE,	"http://$host:$custom_port/port/a/b/c/d.html?mod_rewrite=true") ?>
+</td>
+<th>Project on a non-default port</th>
+</tr>
+
+<tr>
+<td><i>TODO</i> <?php // menu_link('ssl',		'ssl') ?></td>
+<th>Support for SSL-hosted version</th>
+</tr>
+
+<tr>
+<td><i>TODO</i> <?php // menu_link('cli',		'cli') ?></td>
+<th>Script calling a command line tool using system call</th>
+</tr>
+
+<tr>
+<td><i>TODO</i> <?php // menu_link('vhostalias',	'vhostalias') ?></td>
+<th>Script installed on site that uses mod_vhost_alias (tons of bugs with DOCUMENT_ROOT)</th>
+</tr>
+
 </table>
+</div>
+
+<div style="clear: both"></div>
 
 <h2>Variables used for calculation</h2>
 <table cellpadding="15" cellspacing="0" border="1">
