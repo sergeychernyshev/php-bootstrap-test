@@ -5,7 +5,7 @@ $test_server = array_key_exists('SERVER_NAME', $_SERVER) ? $_SERVER['SERVER_NAME
 
 require_once(dirname(__FILE__).'/php-bootstrap/bootstrap.php');
 
-if (array_key_exists('json', $_GET)) {
+if (array_key_exists('json', $_GET) || PHP_SAPI === 'cli') {
 	echo json_encode($_PROJECT);
 	exit;
 }
