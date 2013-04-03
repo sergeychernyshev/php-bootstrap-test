@@ -91,18 +91,18 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 ?><html>
 <head>
 <style>
-	.variations td, th {
-		padding: 0 0.7em 1.2em 0;
+	.value {
+		font-family: monospace;
 	}
 
-	th {
-		text-align: left;
+	td, th {
+		padding: 0.5em;
 	}
 
-	div.results {
-		float: left;
-		margin-right: 2em;
+	.variations th {
+		text-align: right;
 	}
+
 	.button {
 		padding: 0.2em 0.5em;
 		border: 1px solid gray;
@@ -119,10 +119,10 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 	li {
 		padding: 0.5em;
 	}
-	tr.fail td {
+	td.fail {
 		background-color: #ff9996;
 	}
-	tr.pass td {
+	td.pass {
 		background-color: #86f4a7;
 	}
 </style>
@@ -134,24 +134,50 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 <div class="results">
 
 <table cellpadding="15" cellspacing="0" border="1" style="margin-bottom: 1em">
+<tr>
+	<td>Variable</td>
+	<td>Project</td>
+	<td>Sub-project</td>
+</tr>
 <?php foreach ($project_env as $key => $val) {
 	$expected_value = $expected_values[$current_path][$key];
 	$detected_value = $val;
 
+	$outcome = $detected_value == $expected_value;
+
 	$expected_sub_value = $expected_values[$current_path][$key] . '/subproject';
 	$detected_sub_value = $sub_project_env[$key];
 
-	$outcome = $detected_value == $expected_value && $detected_sub_value == $expected_sub_value;
+	$sub_outcome = $detected_sub_value == $expected_sub_value;
 ?>
-<tr class="<?php echo $outcome ? 'pass' : 'fail' ?>">
+<tr>
 	<td>
-		<p>$project_env['<?php echo $key ?>']</p>
-
-		<p>Expected: <?php echo htmlentities($expected_value) ?></p>
-		<p>Detected: <?php echo is_null($detected_value) ? '<i>null</i>' : htmlentities($detected_value) ?></p>
-
-		<p>Sub Expected: <?php echo htmlentities($expected_sub_value) ?></p>
-		<p>Sub Detected: <?php echo is_null($detected_sub_value) ? '<i>null</i>' : htmlentities($detected_sub_value) ?></p>
+		<p><?php echo $key ?></p>
+	</td>
+	<td class="<?php echo $outcome ? 'pass' : 'fail' ?>">
+		<p>Expected:
+			<span class="value">
+				<?php echo htmlentities($expected_value) ?>
+			</span>
+		</p>
+		<p>Detected:
+			<span class="value">
+				<?php echo is_null($detected_value) ? '<i>null</i>' : htmlentities($detected_value) ?>
+			</span>
+		</p>
+	</td>
+	<td class="<?php echo $sub_outcome ? 'pass' : 'fail' ?>">
+		<p>Expected:
+			<span class="value">
+				<?php echo htmlentities($expected_sub_value) ?>
+			</span>
+		</p>
+		<p>
+			Detected:
+			<span class="value">
+				<?php echo is_null($detected_sub_value) ? '<i>null</i>' : htmlentities($detected_sub_value) ?>
+			</span>
+		</p>
 	</td>
 </tr>
 <?php } ?>
@@ -163,6 +189,7 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 
 <table>
 <tr>
+<th>Root of the site</th>
 <td>
 	<nobr>
 	<?php menu_link('root',		'') ?>
@@ -170,10 +197,10 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 	<?php menu_link('mod_rewrite',	'', MOD_REWRITE) ?>
 	</nobr>
 </td>
-<th>Root of the site</th>
 </tr>
 
 <tr>
+<th>Regular subfolder</th>
 <td>
 	<nobr>
 	<?php menu_link('subfolder',	'subfolder') ?>
@@ -181,10 +208,10 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 	<?php menu_link('mod_rewrite',	'subfolder', MOD_REWRITE) ?>
 	</nobr>
 </td>
-<th>Regular subfolder</th>
 </tr>
 
 <tr>
+<th>Folder set up using Apache Alias to folder outside of DocumentRoot</th>
 <td>
 	<nobr>
 	<?php menu_link('alias',	'alias') ?>
@@ -192,10 +219,10 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 	<?php menu_link('mod_rewrite',	'alias', MOD_REWRITE) ?>
 	</nobr>
 </td>
-<th>Folder set up using Apache Alias to folder outside of DocumentRoot</th>
 </tr>
 
 <tr>
+<th>Folder set up using a file system symlink to folder outside of DocumentRoot</th>
 <td>
 	<nobr>
 	<?php menu_link('symlink',	'symlink') ?>
@@ -203,10 +230,10 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 	<?php menu_link('mod_rewrite',	'symlink', MOD_REWRITE) ?>
 	</nobr>
 </td>
-<th>Folder set up using a file system symlink to folder outside of DocumentRoot</th>
 </tr>
 
 <tr>
+<th>Project on a non-default port</th>
 <td>
 	<nobr>
 <?php menu_link('port',		'port', QUERY_STRING,	"http://$host:$custom_port/port/") ?>
@@ -214,22 +241,21 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 <?php menu_link('mod_rewrite',	'port', MOD_REWRITE,	"http://$host:$custom_port/port/a/b/c/d.html?mod_rewrite=true") ?>
 	</nobr>
 </td>
-<th>Project on a non-default port</th>
 </tr>
 
 <tr>
-<td><i>TODO</i> <?php // menu_link('ssl',		'ssl') ?></td>
 <th>Support for SSL-hosted version</th>
+<td><i>TODO</i> <?php // menu_link('ssl',		'ssl') ?></td>
 </tr>
 
 <tr>
-<td><i>TODO</i> <?php // menu_link('cli',		'cli') ?></td>
 <th>Script calling a command line tool using system call</th>
+<td><i>TODO</i> <?php // menu_link('cli',		'cli') ?></td>
 </tr>
 
 <tr>
-<td><i>TODO</i> <?php // menu_link('vhostalias',	'vhostalias') ?></td>
 <th>Script installed on site that uses mod_vhost_alias (tons of bugs with DOCUMENT_ROOT)</th>
+<td><i>TODO</i> <?php // menu_link('vhostalias',	'vhostalias') ?></td>
 </tr>
 
 </table>
