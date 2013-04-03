@@ -1,3 +1,11 @@
+# Configuration file (copy from config.sample.php)
+config.php
+
+# Code clones in first subproject and second subproject
+subproject/php-bootstrap/
+folder
+
+# Other installations
 port
 subfolder
 symlink

@@ -1,15 +1,16 @@
 <?php
-// Set to match your setup to compare to detected values
-$host = 'bootstrap-test.lc';
-$document_root = '/Library/WebServer/Documents/bootstrap-test';
-$outside_of_document_root = '/Users/sergey/php-bootstrap-outside-docroot';
-$custom_port = 81;
+require_once(__DIR__ .'/config.php');
 
-require_once(dirname(__FILE__).'/php-bootstrap/bootstrap.php');
+// Calling PHP Bootstrap
+require_once(__DIR__ . '/php-bootstrap/bootstrap.php');
+
 $project_env = PHPBootstrap\bootstrap(__FILE__);
 
+// Including subproject which will set it's own environment in $sub_roject_env
+require_once(__DIR__ . '/subproject/index.php');
+
 if (array_key_exists('json', $_GET) || PHP_SAPI === 'cli') {
-	echo json_encode($project_env);
+	echo 'callback(project: ' . json_encode($project_env) . ', sub_project: ' . json_encode($sub_project_env) . ')';
 	exit;
 }
 
@@ -90,8 +91,8 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 ?><html>
 <head>
 <style>
-	.variations td {
-		padding: 0.5em;
+	.variations td, th {
+		padding: 0 0.7em 1.2em 0;
 	}
 
 	th {
@@ -128,9 +129,7 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 </head>
 <body>
 
-<h1>PHP Bootstrap Test Harness</h1>
-
-<p>This is a test harness for <a target="_blank" href="https://github.com/sergeychernyshev/php-bootstrap">PHP Bootstrap</a> project.</p>
+<h1><a target="_blank" href="https://github.com/sergeychernyshev/php-bootstrap">PHP Bootstrap</a> Test Harness</h1>
 
 <div class="results">
 
@@ -139,13 +138,20 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 	$expected_value = $expected_values[$current_path][$key];
 	$detected_value = $val;
 
-	$outcome = $detected_value == $expected_value;
+	$expected_sub_value = $expected_values[$current_path][$key] . '/subproject';
+	$detected_sub_value = $sub_project_env[$key];
+
+	$outcome = $detected_value == $expected_value && $detected_sub_value == $expected_sub_value;
 ?>
 <tr class="<?php echo $outcome ? 'pass' : 'fail' ?>">
 	<td>
 		<p>$project_env['<?php echo $key ?>']</p>
+
 		<p>Expected: <?php echo htmlentities($expected_value) ?></p>
 		<p>Detected: <?php echo is_null($detected_value) ? '<i>null</i>' : htmlentities($detected_value) ?></p>
+
+		<p>Sub Expected: <?php echo htmlentities($expected_sub_value) ?></p>
+		<p>Sub Detected: <?php echo is_null($detected_sub_value) ? '<i>null</i>' : htmlentities($detected_sub_value) ?></p>
 	</td>
 </tr>
 <?php } ?>
@@ -153,51 +159,60 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 </div>
 
 <div class="variations">
-<h2>Installation variations</h2>
 <p>You can see different application setup configurations below and see the variables that get set.</p>
 
 <table>
 <tr>
 <td>
+	<nobr>
 	<?php menu_link('root',		'') ?>
 	<?php menu_link('path info',	'', PATH_INFO) ?>
 	<?php menu_link('mod_rewrite',	'', MOD_REWRITE) ?>
+	</nobr>
 </td>
 <th>Root of the site</th>
 </tr>
 
 <tr>
 <td>
-<?php menu_link('subfolder',	'subfolder') ?>
-<?php menu_link('path info',	'subfolder', PATH_INFO) ?>
-<?php menu_link('mod_rewrite',	'subfolder', MOD_REWRITE) ?>
+	<nobr>
+	<?php menu_link('subfolder',	'subfolder') ?>
+	<?php menu_link('path info',	'subfolder', PATH_INFO) ?>
+	<?php menu_link('mod_rewrite',	'subfolder', MOD_REWRITE) ?>
+	</nobr>
 </td>
 <th>Regular subfolder</th>
 </tr>
 
 <tr>
 <td>
-<?php menu_link('alias',	'alias') ?>
-<?php menu_link('path info',	'alias', PATH_INFO) ?>
-<?php menu_link('mod_rewrite',	'alias', MOD_REWRITE) ?>
+	<nobr>
+	<?php menu_link('alias',	'alias') ?>
+	<?php menu_link('path info',	'alias', PATH_INFO) ?>
+	<?php menu_link('mod_rewrite',	'alias', MOD_REWRITE) ?>
+	</nobr>
 </td>
 <th>Folder set up using Apache Alias to folder outside of DocumentRoot</th>
 </tr>
 
 <tr>
 <td>
-<?php menu_link('symlink',	'symlink') ?>
-<?php menu_link('path info',	'symlink', PATH_INFO) ?>
-<?php menu_link('mod_rewrite',	'symlink', MOD_REWRITE) ?>
+	<nobr>
+	<?php menu_link('symlink',	'symlink') ?>
+	<?php menu_link('path info',	'symlink', PATH_INFO) ?>
+	<?php menu_link('mod_rewrite',	'symlink', MOD_REWRITE) ?>
+	</nobr>
 </td>
 <th>Folder set up using a file system symlink to folder outside of DocumentRoot</th>
 </tr>
 
 <tr>
 <td>
+	<nobr>
 <?php menu_link('port',		'port', QUERY_STRING,	"http://$host:$custom_port/port/") ?>
 <?php menu_link('path info',	'port', PATH_INFO,	"http://$host:$custom_port/port/index.php/a/b/c/d/?path_info=true") ?>
 <?php menu_link('mod_rewrite',	'port', MOD_REWRITE,	"http://$host:$custom_port/port/a/b/c/d.html?mod_rewrite=true") ?>
+	</nobr>
 </td>
 <th>Project on a non-default port</th>
 </tr>
