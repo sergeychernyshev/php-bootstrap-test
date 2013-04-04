@@ -155,29 +155,41 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 		<p><?php echo $key ?></p>
 	</td>
 	<td class="<?php echo $outcome ? 'pass' : 'fail' ?>">
-		<p>Expected:
+		<?php if ($outcome) { ?>
 			<span class="value">
-				<?php echo htmlentities($expected_value) ?>
+				<?php echo htmlentities($detected_value) ?>
 			</span>
-		</p>
-		<p>Detected:
-			<span class="value">
-				<?php echo is_null($detected_value) ? '<i>null</i>' : htmlentities($detected_value) ?>
-			</span>
-		</p>
+		<?php } else { ?>
+			<p>Expected:
+				<span class="value">
+					<?php echo htmlentities($expected_value) ?>
+				</span>
+			</p>
+			<p>Detected:
+				<span class="value">
+					<?php echo is_null($detected_value) ? '<i>null</i>' : htmlentities($detected_value) ?>
+				</span>
+			</p>
+		<?php } ?>
 	</td>
 	<td class="<?php echo $sub_outcome ? 'pass' : 'fail' ?>">
-		<p>Expected:
+		<?php if ($sub_outcome) { ?>
 			<span class="value">
-				<?php echo htmlentities($expected_sub_value) ?>
+				<?php echo htmlentities($detected_sub_value) ?>
 			</span>
-		</p>
-		<p>
-			Detected:
-			<span class="value">
-				<?php echo is_null($detected_sub_value) ? '<i>null</i>' : htmlentities($detected_sub_value) ?>
-			</span>
-		</p>
+		<?php } else { ?>
+			<p>Expected:
+				<span class="value">
+					<?php echo htmlentities($expected_sub_value) ?>
+				</span>
+			</p>
+			<p>
+				Detected:
+				<span class="value">
+					<?php echo is_null($detected_sub_value) ? '<i>null</i>' : htmlentities($detected_sub_value) ?>
+				</span>
+			</p>
+		<?php } ?>
 	</td>
 </tr>
 <?php } ?>
