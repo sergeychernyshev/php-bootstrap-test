@@ -1,16 +1,13 @@
 <?php
-require_once(__DIR__ .'/config.php');
+require_once(__DIR__ .'/setup.php');
 
-// Calling PHP Bootstrap
-require_once(__DIR__ . '/php-bootstrap/bootstrap.php');
+if (array_key_exists('json', $_GET)) {
+	echo '{"project": ' . json_encode($project_env) . ', "subproject": ' . json_encode($sub_project_env) . '}';
+	exit;
+}
 
-$project_env = PHPBootstrap\bootstrap(__FILE__);
-
-// Including subproject which will set it's own environment in $sub_roject_env
-require_once(__DIR__ . '/subproject/index.php');
-
-if (array_key_exists('json', $_GET) || PHP_SAPI === 'cli') {
-	echo 'callback(project: ' . json_encode($project_env) . ', sub_project: ' . json_encode($sub_project_env) . ')';
+if (array_key_exists('jsonp', $_GET)) {
+	echo 'callback({"project": ' . json_encode($project_env) . ', "subproject": ' . json_encode($sub_project_env) . '})';
 	exit;
 }
 
@@ -86,7 +83,7 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 	}
 
  	?> <!-- (<a href="<?php echo $uri ?><?php echo strstr($uri, '?') !== FALSE ? '&' : '?' ?>json" target="_blank">json</a>) --><?php
-	
+
 }
 ?><html>
 <head>

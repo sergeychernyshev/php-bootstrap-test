@@ -43,3 +43,6 @@ clean:
 	rm -rf ${docroot}/subfolder
 	rm -f ${docroot}/symlink
 	rm -f ${docroot}/port
+
+test:
+	./test.sh
