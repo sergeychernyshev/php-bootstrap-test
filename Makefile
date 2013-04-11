@@ -8,6 +8,10 @@ all:	init install
 # Initializes primary install
 init:	clean php-bootstrap subproject
 
+submodules:
+	git submodule init
+	git submodule update
+
 php-bootstrap:
 	git submodule init
 	git submodule update
