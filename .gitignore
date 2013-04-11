@@ -2,7 +2,7 @@
 config.php
 
 # Code clones in first subproject and second subproject
-subproject/php-bootstrap/
+subproject/php-bootstrap
 
 # Other installations
 port
