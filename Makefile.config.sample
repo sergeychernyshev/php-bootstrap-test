@@ -1,0 +1,2 @@
+docroot = /path/to/document/root/
+outside_of_docroot = /path/outside/of/document/root/

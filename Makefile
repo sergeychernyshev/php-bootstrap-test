@@ -1,7 +1,6 @@
 .PHONY: subproject subfolder
 
-docroot = /Library/WebServer/Documents/bootstrap-test
-outside_of_docroot = /Users/sergey/php-bootstrap-outside-docroot
+include Makefile.config
 
 all:	init install
 
@@ -49,4 +48,12 @@ clean:
 	rm -f ${docroot}/port
 
 test:
+ifeq "$(wildcard config.php)" ""
+	@echo =
+	@echo =	You must create config.php and match values from Makefile.config
+	@echo =	Start by copying config.sample.php
+	@echo =
+	@exit 1
+endif
+
 	./test.sh

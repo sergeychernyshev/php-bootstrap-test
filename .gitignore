@@ -1,5 +1,6 @@
 # Configuration file (copy from config.sample.php)
 config.php
+Makefile.config
 
 # Code clones in first subproject and second subproject
 subproject/php-bootstrap
