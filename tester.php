@@ -212,6 +212,6 @@ foreach ($expected_values as $install_root_id => $expected) {
 echo "\n\n== Statistics ==\n";
 echo "Total tests: $test_number\n";
 echo "Tests passed: " . ($tests_passed > 0 ? colorize($tests_passed, true) : 0). "\n";
-echo "Total tests: " . ($tests_failed > 0 ? colorize($tests_failed, false) : 0). "\n";
+echo "Total failed: " . ($tests_failed > 0 ? colorize($tests_failed, false) : 0). "\n";
 
 #var_export($test_results);
