@@ -14,5 +14,11 @@ RewriteRule \.html$		/symlink/index.php [L]
 RewriteCond %{REQUEST_URI}	^/port/
 RewriteRule \.html$		/port/index.php [L]
 
+RewriteCond %{REQUEST_URI}	^/ssl/
+RewriteRule \.html$		/ssl/index.php [L]
+
+RewriteCond %{REQUEST_URI}	^/ssl-port/
+RewriteRule \.html$		/ssl-port/index.php [L]
+
 RewriteRule \.html$ index.php
 </IfModule>

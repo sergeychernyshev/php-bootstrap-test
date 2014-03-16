@@ -20,7 +20,7 @@ subproject:
 	cd php-bootstrap; git archive master | tar -x -C ${docroot}/subproject/php-bootstrap/
 
 # Installs all code using methods being tested
-install: package alias subfolder port symlink
+install: package alias subfolder port symlink ssl ssl-port
 
 package:
 	tar --exclude ".git*" -c . >/tmp/test.tar
@@ -37,6 +37,12 @@ subfolder:
 port:
 	ln -s . port
 
+ssl:
+	ln -s . ssl
+
+ssl-port:
+	ln -s . ssl-port
+
 symlink:
 	ln -s ${outside_of_docroot}/ symlink
 
@@ -46,6 +52,8 @@ clean:
 	rm -rf ${docroot}/subfolder
 	rm -f ${docroot}/symlink
 	rm -f ${docroot}/port
+	rm -f ${docroot}/ssl
+	rm -f ${docroot}/ssl-port
 
 test:
 ifeq "$(wildcard config.php)" ""

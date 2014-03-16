@@ -36,6 +36,16 @@ $expected_values = array(
 		'ROOT_FILESYSTEM_PATH' => $document_root,
 		'ROOT_ABSOLUTE_URL_PATH' => '/port',
 		'ROOT_FULL_URL' => 'http://' . $host . ':' . $custom_port . '/port'
+	),
+	'ssl' => array(
+		'ROOT_FILESYSTEM_PATH' => $document_root,
+		'ROOT_ABSOLUTE_URL_PATH' => '/ssl',
+		'ROOT_FULL_URL' => 'https://' . $host . '/ssl'
+	),
+	'ssl-port' => array(
+		'ROOT_FILESYSTEM_PATH' => $document_root,
+		'ROOT_ABSOLUTE_URL_PATH' => '/ssl-port',
+		'ROOT_FULL_URL' => 'https://' . $host . ':' . $ssl_custom_port . '/ssl-port'
 	)
 );
 
@@ -254,7 +264,24 @@ function menu_link($slug, $path, $mode = QUERY_STRING, $uri = null) {
 
 <tr>
 <th>Support for SSL-hosted version</th>
-<td><i>TODO</i> <?php // menu_link('ssl',		'ssl') ?></td>
+<td>
+	<nobr>
+<?php menu_link('ssl',		'ssl', QUERY_STRING,	"https://$host/ssl/") ?>
+<?php menu_link('path info',	'ssl', PATH_INFO,	"https://$host/ssl/index.php/a/b/c/d/?path_info=true") ?>
+<?php menu_link('mod_rewrite',	'ssl', MOD_REWRITE,	"https://$host/ssl/a/b/c/d.html?mod_rewrite=true") ?>
+	</nobr>
+</td>
+</tr>
+
+<tr>
+<th>Support for SSL-hosted version on a non-default port</th>
+<td>
+	<nobr>
+<?php menu_link('ssl port',	'ssl-port', QUERY_STRING,	"https://$host:$ssl_custom_port/ssl-port/") ?>
+<?php menu_link('path info',	'ssl-port', PATH_INFO,		"https://$host:$ssl_custom_port/ssl-port/index.php/a/b/c/d/?path_info=true") ?>
+<?php menu_link('mod_rewrite',	'ssl-port', MOD_REWRITE,	"https://$host:$ssl_custom_port/ssl-port/a/b/c/d.html?mod_rewrite=true") ?>
+	</nobr>
+</td>
 </tr>
 
 <tr>
