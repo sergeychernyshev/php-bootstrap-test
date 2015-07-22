@@ -20,7 +20,7 @@ subproject:
 	cd php-bootstrap; git archive master | tar -x -C ${docroot}/subproject/php-bootstrap/
 
 # Installs all code using methods being tested
-install: package alias subfolder port symlink ssl ssl-port
+install: package alias subfolder port symlink ssl ssl-port rmpackage
 
 package:
 	tar --exclude ".git*" -c . >/tmp/test.tar
@@ -33,6 +33,9 @@ alias:
 subfolder:
 	mkdir ${docroot}/subfolder/
 	tar -C ${docroot}/subfolder/ -xf /tmp/test.tar
+
+rmpackage:
+	rm /tmp/test.tar
 
 port:
 	ln -s . port
