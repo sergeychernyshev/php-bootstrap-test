@@ -77,7 +77,12 @@ $install_roots = array(
 		'title' => 'SSL',
 		'path' => '/ssl',
 		'ssl' => true,
-		'disabled' => true
+	),
+	'ssl-port' => array(
+		'title' => 'SSL on a custom port',
+		'path' => '/ssl-port',
+		'ssl' => true,
+		'port' => $ssl_custom_port
 	),
 	'cli' => array(
 		'title' => 'Command line',
@@ -114,9 +119,19 @@ $expected_values = array(
 		'ROOT_FULL_URL' => 'http://' . $host . '/symlink'
 	),
 	'port' => array(
-		'ROOT_FILESYSTEM_PATH' => $document_root,
+		'ROOT_FILESYSTEM_PATH' => $document_root . '/port',
 		'ROOT_ABSOLUTE_URL_PATH' => '/port',
 		'ROOT_FULL_URL' => 'http://' . $host . ':' . $custom_port . '/port'
+	),
+	'ssl' => array(
+		'ROOT_FILESYSTEM_PATH' => $document_root,
+		'ROOT_ABSOLUTE_URL_PATH' => '',
+		'ROOT_FULL_URL' => 'https://' . $host
+	),
+	'ssl-port' => array(
+		'ROOT_FILESYSTEM_PATH' => $document_root . '/ssl-port',
+		'ROOT_ABSOLUTE_URL_PATH' => '/ssl-port',
+		'ROOT_FULL_URL' => 'https://' . $host . ':' . $ssl_custom_port . '/ssl-port'
 	)
 );
 
@@ -143,6 +158,8 @@ function getResults($host, $install_roots, $request_paths, $request_methods) {
 
 
 				curl_setopt($ch, CURLOPT_URL, $url);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
 				$json = curl_exec($ch);
 
 
@@ -167,6 +184,9 @@ function getResults($host, $install_roots, $request_paths, $request_methods) {
 
 $test_results = getResults($host, $install_roots, $request_paths, $request_methods);
 
+$expected_keys = array_keys($expected_values);
+
+$total_tests = count($install_roots) * count($request_paths) * count($request_methods) * count($expected_values[$expected_keys[0]]);
 $test_number = 0;
 $tests_passed = 0;
 $tests_failed = 0;
@@ -209,9 +229,12 @@ foreach ($expected_values as $install_root_id => $expected) {
 	}
 }
 
+$skipped_tests = $total_tests - $test_number;
+
 echo "\n\n== Statistics ==\n";
-echo "Total tests: $test_number\n";
+echo "Total tests: $total_tests\n";
 echo "Tests passed: " . ($tests_passed > 0 ? colorize($tests_passed, true) : 0). "\n";
-echo "Total failed: " . ($tests_failed > 0 ? colorize($tests_failed, false) : 0). "\n";
+echo "Tests failed: " . ($tests_failed > 0 ? colorize($tests_failed, false) : 0). "\n";
+echo "Tests skipped: $skipped_tests\n";
 
 #var_export($test_results);
