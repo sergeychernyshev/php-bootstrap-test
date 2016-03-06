@@ -5,13 +5,9 @@ include Makefile.config
 all:	init install
 
 # Initializes primary install
-init:	clean php-bootstrap subproject
+init:	clean php-bootstrap/bootstrap.php subproject
 
-submodules:
-	git submodule init
-	git submodule update
-
-php-bootstrap:
+php-bootstrap/bootstrap.php:
 	git submodule init
 	git submodule update
 
