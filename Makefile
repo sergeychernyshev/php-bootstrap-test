@@ -17,7 +17,7 @@ php-bootstrap:
 
 subproject:
 	mkdir ${docroot}/subproject/php-bootstrap/
-	cd php-bootstrap; git archive master | tar -x -C ${docroot}/subproject/php-bootstrap/
+	git archive master | tar -x -C ${docroot}/subproject/php-bootstrap/
 
 # Installs all code using methods being tested
 install: package alias subfolder port symlink ssl ssl-port rmpackage
